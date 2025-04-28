@@ -2,6 +2,7 @@ package com.vision.cralwingvps.util;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 public class SeleniumUtil {
@@ -68,6 +70,7 @@ public class SeleniumUtil {
 
             ChromeDriver driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options);
 
+
             // navigator.webdriver 우회
             String script = "Object.defineProperty(navigator, 'webdriver', { get: () => undefined });";
             Map<String, Object> params = new HashMap<>();
@@ -90,11 +93,17 @@ public class SeleniumUtil {
             FirefoxOptions options = new FirefoxOptions();
             options.setBinary("C:/Program Files/Mozilla Firefox/firefox.exe");
 
-            // ✅ 실제 로그인된 Firefox 사용자 프로필 경로
+            // ✅ 실제 로그인된 프로필 복사 → 임시 디렉토리
             String realProfilePath = "C:/Users/772vj/AppData/Roaming/Mozilla/Firefox/Profiles/4vbvqpsl.default-release";
+            String tempProfilePath = "C:/selenium/tmp-profiles/firefox-" + UUID.randomUUID();
 
+            FileUtils.copyDirectory(new File(realProfilePath), new File(tempProfilePath));
             options.addArguments("-profile");
-            options.addArguments(realProfilePath);
+            options.addArguments(tempProfilePath);
+
+            // 안정성 옵션
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
 
             FirefoxDriver driver = new FirefoxDriver(options);
 
@@ -102,7 +111,7 @@ public class SeleniumUtil {
             driver.get("about:blank");
             driver.executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 
-            log.info("✅ Firefox WebDriver (실제 사용자 프로필) 생성 완료");
+            log.info("✅ Firefox WebDriver (임시 복사된 사용자 프로필) 생성 완료: {}", tempProfilePath);
             return driver;
 
         } catch (Exception e) {

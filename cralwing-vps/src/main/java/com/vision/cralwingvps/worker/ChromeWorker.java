@@ -38,17 +38,16 @@ public class ChromeWorker extends AbstractWorker {
 
     @Override
     protected void process(CrawlPlaceDto task) {
-        log.info("🔍 [{}] 작업 시작 → {}", workerId, task.getBusinessName());
+        log.info("✅ [{}] index : {}, 키워드: {}, 상호명: {}, 기존순위: {}, 크롤링 시작", task.getQueueName(), task.getIndex(), task.getKeyword(), task.getBusinessName(), task.getCurrentRank());
         try {
+            int beforeCurRank = task.getCurrentRank();
             int rank = NaverMapService.scrollToFindBusiness(driver, task);
             task.setCurrentRank(rank);
             task.setDeamonCrawlStatus("DONE");
-            log.info("✅ [{}] 크롤링 성공: {} → {}위", workerId, task.getBusinessName(), rank);
-
 //            apiClient.sendCrawlingResult(task, "DONE", "성공");
-
+            log.info("✅ [{}] index : {}, 키워드: {}, 상호명: {}, 기존순위: {} → 크롤링 순위 {}, 크롤링 성공", task.getQueueName(), task.getIndex(), task.getKeyword(), task.getBusinessName(), beforeCurRank, rank);
         } catch (Exception e) {
-            log.error("❌ [{}] 크롤링 실패: {}", workerId, e.getMessage(), e);
+            log.error("❌ [{}] index : {}, 키워드: {}, 상호명: {}, 기존순위: {}, 크롤링 실패", task.getQueueName(), task.getIndex(), task.getKeyword(), task.getBusinessName(), task.getCurrentRank());
             task.setDeamonCrawlStatus("FAIL");
 //            apiClient.sendCrawlingResult(task, "FAIL", e.getMessage());
         }

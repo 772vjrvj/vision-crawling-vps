@@ -39,16 +39,15 @@ public class DispatcherService {
         // ❌ 04:00 ~ 08:00 중지 (04시 배치만 처리됨)
 //        if (now.isAfter(LocalTime.of(4, 0)) && now.isBefore(LocalTime.of(8, 0))) return;
 
-        List<CrawlPlaceDto> tasks = apiClient.fetchBatchTasks();
+        List<CrawlPlaceDto> tasks = apiClient.fetchBatchTasks("one");
         for (int i = 0; i < tasks.size(); i++) {
 //            if(i >= 5) break;
             CrawlPlaceDto task = tasks.get(i);
+            task.setIndex(i);
 //            if (task.getCurrentRank() != 1 && task.getCurrentRank() > 100 && task.getCurrentRank() != 301 && task.getCurrentRank() != 999){
 //                queueManager.dispatch(task);
 //            }
-            if (task.getCurrentRank() != 1){
-                queueManager.dispatch(task);
-            }
+            queueManager.dispatch(task);
         }
 
         log.info("끝");
@@ -70,7 +69,7 @@ public class DispatcherService {
 
     @Scheduled(cron = "0 0 4 * * *")
     public void batchFetchFromApiAt4am() {
-        List<CrawlPlaceDto> tasks = apiClient.fetchBatchTasks();
+        List<CrawlPlaceDto> tasks = apiClient.fetchBatchTasks("one");
         for (CrawlPlaceDto task : tasks) {
             queueManager.dispatch(task);
         }

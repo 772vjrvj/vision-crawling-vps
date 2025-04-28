@@ -31,9 +31,10 @@ public class WorkerQueueManager {
 
     public void dispatch(CrawlPlaceDto task) {
         String target = getSmartWorkerId();
+        task.setQueueName(target);
         boolean offer = workerQueues.get(target).offer(task);
         if (offer){
-            log.info("📦 작업 {} → {} 워커에 분배됨 (큐 길이: {})", task.getBusinessName(), target, workerQueues.get(target).size());
+            log.info("📦 큐 키워드 : {}, 상호명 : {} → {} 워커에 분배됨 (큐 길이: {}, index: {})", task.getKeyword(), task.getBusinessName(), target, workerQueues.get(target).size(), task.getIndex());
         }
     }
 

@@ -26,4 +26,6 @@ public class CrawlPlaceDto {
     private String correctYn;        // 보정
     private String deamonCrawlStatus;
     private String deamonCrawlDt;
+    private Integer index;
+    private String queueName;
 }

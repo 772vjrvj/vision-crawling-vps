@@ -48,7 +48,7 @@ public abstract class AbstractWorker implements Runnable {
      * 큐에 들어온 작업 로그 출력
      */
     protected void logReceived(CrawlPlaceDto task) {
-        log.info("📥 [{}] 작업 수신: {} ({})", workerId, task.getBusinessName(), task.getPlaceNumber());
+        log.info("✅ [{}] index : {}, 키워드: {}, 상호명: {}, 기존순위: {}, 작업 수신", task.getQueueName(), task.getIndex(), task.getKeyword(), task.getBusinessName(), task.getCurrentRank());
     }
 
     /**

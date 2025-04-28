@@ -3,10 +3,12 @@ package com.vision.cralwingvps.client;
 import com.vision.cralwingvps.dto.CrawlPlaceDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.IDN;
 import java.util.Collections;
@@ -20,25 +22,26 @@ public class CrawlRequestApiClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public List<CrawlPlaceDto> fetchBatchTasks() {
-        try {
-            // 1. 한글 도메인을 punycode로 변환
-            String encodedHost = IDN.toASCII("주식회사비전.com");
-            String baseUrl = "https://" + encodedHost + "/user/place/rest/select-currentrank";
-            String urlWithParams = baseUrl + "?type=initialRank";
+    @Value("${crawl.place.domain}")
+    private String baseDomain;
 
-            // 2. 헤더 구성 (User-Agent 꼭 필요)
+    public List<CrawlPlaceDto> fetchBatchTasks(String type) {
+        try {
+            // 1. URI에 쿼리 파라미터 추가
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseDomain + "/user/place/rest/select-currentrank")
+                    .queryParam("type", type);
+
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            log.info("📡 요청 URL: {}", urlWithParams);
+            String finalUrl = builder.toUriString();
+            log.info("📡 요청 URL: {}", finalUrl);
 
-            // 3. 요청 실행
             ResponseEntity<List<CrawlPlaceDto>> response = restTemplate.exchange(
-                    urlWithParams,
+                    finalUrl,
                     HttpMethod.GET,
                     entity,
                     new ParameterizedTypeReference<>() {}
