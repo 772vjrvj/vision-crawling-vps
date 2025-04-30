@@ -44,7 +44,7 @@ public class FirefoxWorker extends AbstractWorker {
             int rank = NaverMapService.scrollToFindBusiness(driver, task);
             task.setCurrentRank(rank);
             task.setDeamonCrawlStatus("DONE");
-//            apiClient.sendCrawlingResult(task, "DONE", "성공");
+            apiClient.sendCrawlingResult(task, "DONE", "성공");
             if (beforeCurRank != rank){
                 log.info("🟡 [{}] index : {}, 키워드: {}, 상호명: {}, 기존순위: {} → 크롤링 순위 {}, 크롤링 변경 성공", task.getQueueName(), task.getIndex(), task.getKeyword(), task.getBusinessName(), beforeCurRank, rank);
             }else{
